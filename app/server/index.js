@@ -92,7 +92,7 @@ http.listen(process.env.PORT || 5000, function(){
     };
 
     Game.prototype.broadcastSocket = function (event, payload) {
-        this.io.sockets.emit(event, payload);
+        this.io.sockets.emit(event, payload || '');
     };
 
     Game.prototype.update = function () {
@@ -104,7 +104,7 @@ http.listen(process.env.PORT || 5000, function(){
         });
 
         if(collisions.length) {
-            _self.broadcastSocket('sound_play', 'crash1');
+            _self.broadcastSocket('playCrash');
         }
         _.each(this.snakes, function (snake) {
             snake.update();

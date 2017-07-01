@@ -59,8 +59,9 @@ function Game(canvas, socket, name, options) {
     this.state = {};
 
     socket.on('game_gameLoop', this.gameLoop.bind(this));
-    socket.on('sound_play', function () {
-        alert('test');
+    socket.on('playCrash', function () {
+
+        window.SOUNDS.playCrash();
     });
 }
 
