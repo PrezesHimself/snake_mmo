@@ -243,7 +243,8 @@ Game.prototype.draw = function () {
 
     _.each(this.state.snakes, function (snake) {
         var grid = _self.grid;
-        _.each(snake.segments, function (segment) {
+        _.each(snake.segments, function (segment, i) {
+            _self.context.globalAlpha = i/snake.segments.length + 0.5;
             _self.context.fillStyle = snake.color;
             _self.context.fillRect(
                 segment.x * grid,
