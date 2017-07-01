@@ -6,6 +6,9 @@ const _ = require('lodash');
 var game;
 var debug;
 
+const colorArr = ['#cc0000','#ffcc00','#33cc33','#0099ff','#cc33ff'];
+
+
 app.use('/', express.static('./app/public'))
 
 io.on('connection', function(socket){
@@ -84,6 +87,7 @@ http.listen(process.env.PORT || 5000, function(){
 
     Game.prototype.addSnake = function (snake) {
         this.debug.log(snake.name + ' joined the game');
+
         this.snakes.push(new Snake(snake.name));
     };
 
@@ -108,7 +112,7 @@ http.listen(process.env.PORT || 5000, function(){
         setTimeout(function(){
             _self.gameLoop();
         }, 1000 / this.options.fps);
-    };
+};
     
 //    snake
 
@@ -116,6 +120,8 @@ http.listen(process.env.PORT || 5000, function(){
         this.x = _.sample([10, 20, 30, 40]);
         this.y = _.sample([10, 20, 30, 40]);
         this.name = name;
+
+        this.color = colorArr.length > 0 ? colorArr.pop() : Math.random().toString(16).slice(-6);
         this.direction = 'right';
         this.segments = [];
 
