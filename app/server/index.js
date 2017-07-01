@@ -8,7 +8,6 @@ var debug;
 
 const colorArr = ['#cc0000','#ffcc00','#33cc33','#0099ff','#cc33ff'];
 
-
 app.use('/', express.static('./app/public'))
 
 io.on('connection', function(socket){
@@ -28,7 +27,6 @@ io.on('connection', function(socket){
 
     socket.on('disconnect', function () {
         io.emit('user disconnected');
-        if(!direction) return;
         var snake = _.find(game.snakes, {id: socket.id});
         if(snake) game.removeSnake(snake);
     });
@@ -357,8 +355,14 @@ http.listen(process.env.PORT || 5000, function(){
             '#330d21',
             '#664d5a',
             '#a6002c',
-            '#ff80a2'
-        ];
+            '#ff80a2',
+            '#cc0000',
+            '#ffcc00',
+            '#33cc33',
+            '#0099ff',
+            '#cc33ff'
+
+    ];
 
         this.getColor = function () {
             return colors.pop() || '#FFF';
