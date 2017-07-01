@@ -25,7 +25,7 @@ html, body {
     bottom: 0;
     width: 400px;
     padding: 20px;
-    background: gray;
+    background: black;
 }
 
 .game-container .score-board div {

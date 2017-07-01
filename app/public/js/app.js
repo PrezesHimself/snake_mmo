@@ -60,19 +60,17 @@ function Game(canvas, socket, name) {
 
     socket.on('game_gameLoop', this.gameLoop.bind(this));
     socket.on('game_updateScore', this.updateScoreBoard.bind(this));
+
     socket.on('playCrash', function () {
         window.SOUNDS.playCrash();
-
     });
+
     socket.on('playPowerup', function () {
-
         window.SOUNDS.playSound('powerup');
-
     });
+
     socket.on('playNewplayer', function () {
-
         window.SOUNDS.playSound('new_player');
-
     });
 }
 
@@ -84,8 +82,15 @@ function Game(canvas, socket, name) {
 Game.prototype.updateScoreBoard = function (scoreBoard) {
     var board = $('.score-board');
     board.empty();
-    _.each(scoreBoard, function (score) {
-       var element = $('<div>').text(score.name + ': ' + score.score);
+    _.each(scoreBoard.scoreBoard, function (score) {
+        var element = $('<div>').text(score.name + ': ' + score.score);
+        element.css('color', score.color)
+        board.append(element);
+    });
+    board.append($('<h2>').text('High Score'));
+
+    _.each(scoreBoard.highScore, function (score) {
+        var element = $('<div>').text(score.name + ': ' + score.score);
         board.append(element);
     });
 };

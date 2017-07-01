@@ -114,11 +114,28 @@ http.listen(process.env.PORT || 5000, function(){
         var scoreBoard = _.map(this.snakes, function (snake) {
             return {
                 name: snake.name,
-                score: snake.length
+                score: snake.length,
+                color: snake.color
             };
         });
         scoreBoard = _.orderBy(scoreBoard, ['score'], ['desc']);
-        return scoreBoard;
+
+        var highScore = _.chain(scoreBoard)
+            .concat(this.state.highScore)
+            .reject(function (item) {
+                return !item;
+            })
+            .orderBy(['name', 'score'], ['asc', 'desc'])
+            .uniqBy('name')
+            .orderBy(['score'], ['desc'])
+            .take(3)
+            .value();
+
+        this.state.highScore = highScore;
+        return {
+            scoreBoard: scoreBoard,
+            highScore: highScore
+        };
     };
 
     Game.prototype.update = function () {
@@ -142,11 +159,12 @@ http.listen(process.env.PORT || 5000, function(){
         }
 
         if(_.includes(this.getCollisionsTypes(collisions), 'Food')) {
-            _self.broadcastSocket('game_updateScore', _self.getScoreBoard());
-            _self.broadcastSocket('playCrash');
             _self.broadcastSocket('playPowerup');
         }
-        
+
+        if(collisions.length) {
+            _self.broadcastSocket('game_updateScore', _self.getScoreBoard());
+        }
         _.each(this.snakes, function (snake) {
             snake.update();
         });
