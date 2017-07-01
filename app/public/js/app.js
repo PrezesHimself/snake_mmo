@@ -261,6 +261,16 @@ Game.prototype.draw = function () {
             food.y * grid,
             grid, grid);
     });
+
+    _.each(this.state.powerups, function (powerup) {
+        var grid = _self.grid;
+
+        _self.context.fillStyle = '#F00';
+        _self.context.fillRect(
+            powerup.x * grid,
+            powerup.y * grid,
+            grid, grid);
+    });
 };
 
 init();

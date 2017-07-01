@@ -19,7 +19,9 @@ io.on('connection', function(socket){
     });
 
     socket.on('directionChanged', function(direction){
-        if(!direction) return;
+        if(!direction) {
+            return;
+        }
         debug.log(`${direction.snake.id} has moved ${direction.direction}`);
 
         var snake = _.find(game.snakes, {id: direction.snake.id});
@@ -28,7 +30,6 @@ io.on('connection', function(socket){
 
     socket.on('disconnect', function () {
         io.emit('user disconnected');
-        if(!direction) return;
         var snake = _.find(game.snakes, {id: socket.id});
         if(snake) game.removeSnake(snake);
     });
@@ -70,6 +71,9 @@ http.listen(process.env.PORT || 5000, function(){
 
         this.snakes = [];
         this.foods = [];
+        this.powerups = [];
+
+        this.timer = new Timer();
 
         this.options = {
             fps: 15
@@ -82,6 +86,8 @@ http.listen(process.env.PORT || 5000, function(){
     Game.prototype.start = function (event) {
         this.addFood();
         this.gameLoop();
+
+        this.timer.repeat(5, this.span.bind(this, new Explosion()))
     };
 
     Game.prototype.getState = function () {
@@ -92,10 +98,15 @@ http.listen(process.env.PORT || 5000, function(){
         return state;
     };
 
+    Game.prototype.span = function (entity) {
+        this.powerups.push(entity);
+    };
+
     Game.prototype.getStateObj = function () { //change that to class
         var state = {};
         state.snakes = this.snakes;
         state.foods = this.foods;
+        state.powerups = this.powerups;
         return state;
     };
 
@@ -107,7 +118,7 @@ http.listen(process.env.PORT || 5000, function(){
 
     Game.prototype.removeSnake = function (snake) {
         _.pull(this.snakes, snake);
-        this.colorFactory.returnColor(snake.color)
+        this.colorFactory.returnColor(snake.color);
         // this.debug.log(snakeToBeRemoved.name + 'id:'+ snakeToBeRemoved.id + 'index:'+snakeIndex+ ' left the game');
     };
 
@@ -156,6 +167,10 @@ http.listen(process.env.PORT || 5000, function(){
                 _self.addFood();
 
                 snake.eat();
+            } else if(collision.b.constructor.name === 'Explosion') {
+                collision.b.action(_self);
+                _self.removePowerup(collision.b);
+
             }
         });
 
@@ -192,6 +207,10 @@ http.listen(process.env.PORT || 5000, function(){
         _.remove(this.foods, food);
     };
 
+    Game.prototype.removePowerup = function (powerup) {
+        _.remove(this.powerups, powerup);
+    };
+
     Game.prototype.addFood = function () {
         this.foods.push(new Food());
     };
@@ -202,7 +221,8 @@ http.listen(process.env.PORT || 5000, function(){
             .map('segments')
             .flatten()
             .value()
-            .concat(this.foods);
+            .concat(this.foods)
+            .concat(this.powerups);
 
         _.each(this.snakes, function (snake) {
             _.each(flatSegmentsMap, function (object) {
@@ -307,6 +327,22 @@ http.listen(process.env.PORT || 5000, function(){
         this.y = _.sample(_.range(67));
     }
 
+// Explosion
+
+    function Explosion() {
+        this.x = _.sample(_.range(67));
+        this.y = _.sample(_.range(67));
+    }
+
+    Explosion.prototype.action = function (game) {
+        game.addFood();
+        game.addFood();
+        game.addFood();
+        game.addFood();
+        game.addFood();
+        game.addFood();
+    };
+
 //    grid 
     global.GRID = new Grid();
 
@@ -314,6 +350,30 @@ http.listen(process.env.PORT || 5000, function(){
         this.width = 67;
         this.height = 67;
     }
+
+//    Timer
+
+    function Timer() {
+        this.timers = [];
+    }
+
+    Timer.prototype.repeat= function(sec, callback) {
+        var stop = false;
+        var repeat = function() {
+            setTimeout(
+                function () {
+                    callback();
+                    if(!stop) repeat();
+                },
+                sec * 1000
+            );
+        };
+        repeat();
+        this.timers.push({
+            callback: callback,
+            repeat: repeat
+        });
+    };
 
 //    ColorFactory
 
