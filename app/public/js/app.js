@@ -230,11 +230,28 @@ Game.prototype.draw = function () {
     });
 };
 
+init();
+
+function init() {
+    var savedName = window.COOKIES.readCookie('PalaceJamUserName');
+    if(savedName)  $('.snake-name').val(savedName);
+}
 
 $('.snake-name-button').click(function () {
+    initGame();
+});
+
+$('.snake-name').keypress(function (e) {
+    if (e.which == 13) {
+        initGame();
+        return false;    //<---- Add this line
+    }
+});
+
+function initGame() {
     $('.splash').toggle();
     var name = $('.snake-name').val();
-
+    window.COOKIES.createCookie('PalaceJamUserName', name);
     var socket = io();
     
     socket.on('connect', function () {
@@ -259,4 +276,4 @@ $('.snake-name-button').click(function () {
     // game.addEntity(food);
     // game.addEntity(snake);
     game.start();
-});
+}

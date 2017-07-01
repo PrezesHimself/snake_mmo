@@ -4,8 +4,9 @@ html, body {
     overflow: hidden;
 }
 
-
-/*debug*/
+.splash .jumbotron{
+    margin-top: 50px;
+}
 
 .debug {
     overflow-y: scroll;
