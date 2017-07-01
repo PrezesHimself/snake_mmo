@@ -361,10 +361,10 @@ http.listen(process.env.PORT || 5000, function(){
         ];
 
         this.getColor = function () {
-            return colors.pop();
+            return colors.pop() || '#FFF';
         }
 
-        this.returnColor =function (color) {
+        this.returnColor = function (color) {
             return colors.push(color);
         }
     }
