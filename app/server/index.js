@@ -19,6 +19,7 @@ io.on('connection', function(socket){
     });
 
     socket.on('directionChanged', function(direction){
+        if(!direction) return;
         debug.log(`${direction.snake.id} has moved ${direction.direction}`);
 
         var snake = _.find(game.snakes, {id: direction.snake.id});
@@ -27,7 +28,9 @@ io.on('connection', function(socket){
 
     socket.on('disconnect', function () {
         io.emit('user disconnected');
-        game.removeSnake(socket.id);
+        if(!direction) return;
+        var snake = _.find(game.snakes, {id: socket.id});
+        if(snake) game.removeSnake(snake);
     });
 
 });
@@ -72,6 +75,8 @@ http.listen(process.env.PORT || 5000, function(){
             fps: 15
         };
         this.state = {};
+
+        this.colorFactory = new ColorFactory();
     };
     
     Game.prototype.start = function (event) {
@@ -96,13 +101,13 @@ http.listen(process.env.PORT || 5000, function(){
 
     Game.prototype.addSnake = function (snake) {
         // this.debug.log(snake.name + 'id:'+ snake.id + ' joined the game');
-        this.snakes.push(new Snake(snake.id, snake.name));
+        this.snakes.push(new Snake(snake.id, snake.name, this.colorFactory.getColor()));
         this.broadcastSocket('playNewplayer');
     };
 
-    Game.prototype.removeSnake = function (snakeId) {
-        var snakeToBeRemoved = _.find(this.snakes, {id: snakeId});
-        _.pull(this.snakes, snakeToBeRemoved);
+    Game.prototype.removeSnake = function (snake) {
+        _.pull(this.snakes, snake);
+        this.colorFactory.returnColor(snake.color)
         // this.debug.log(snakeToBeRemoved.name + 'id:'+ snakeToBeRemoved.id + 'index:'+snakeIndex+ ' left the game');
     };
 
@@ -224,13 +229,12 @@ http.listen(process.env.PORT || 5000, function(){
     
 //    snake
 
-    function Snake(id, name) {
+    function Snake(id, name, color) {
         this.head;
         this.name = name;
         this.id = id;
 
-        this.color = colorArr.length > 0 ? colorArr.pop() : '#ffcc00';
-        //Math.random().toString(16).slice(-6); //todo extract to external fn
+        this.color = color;
         this.direction = 'right';
 
         this.reset();
@@ -309,6 +313,60 @@ http.listen(process.env.PORT || 5000, function(){
     function Grid() {
         this.width = 67;
         this.height = 67;
+    }
+
+//    ColorFactory
+
+    function ColorFactory() {
+        var colors = [
+            '#f2b6b6',
+            '#660e00',
+            '#e53d00',
+            '#e59173',
+            '#734939',
+            '#bf6600',
+            '#33210d',
+            '#ffc480',
+            '#d9bfa3',
+            '#73561d',
+            '#a68500',
+            '#ffee00',
+            '#61661a',
+            '#bcbf8f',
+            '#d4ff80',
+            '#40ff40',
+            '#608060',
+            '#008011',
+            '#104016',
+            '#80ffd4',
+            '#00d6e6',
+            '#007780',
+            '#8fbcbf',
+            '#566d73',
+            '#102940',
+            '#669ccc',
+            '#3677d9',
+            '#3d3df2',
+            '#0c0059',
+            '#413366',
+            '#986cd9',
+            '#70008c',
+            '#e600d6',
+            '#ffbff2',
+            '#a6296c',
+            '#330d21',
+            '#664d5a',
+            '#a6002c',
+            '#ff80a2'
+        ];
+
+        this.getColor = function () {
+            return colors.pop();
+        }
+
+        this.returnColor =function (color) {
+            return colors.push(color);
+        }
     }
 
 })();
