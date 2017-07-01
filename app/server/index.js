@@ -18,12 +18,17 @@ io.on('connection', function(socket){
     });
 
     socket.on('directionChanged', function(direction){
-        debug.log(`${direction.snake.name} has moved ${direction.direction}`);
+        debug.log(`${direction.snake.id} has moved ${direction.direction}`);
 
-        var snake = _.find(game.snakes, {name: direction.snake.name});
-
+        var snake = _.find(game.snakes, {id: direction.snake.id});
         if(snake) snake.direction = direction.direction;
     });
+
+    socket.on('disconnect', function () {
+        io.emit('user disconnected');
+        game.removeSnake(socket.id);
+    });
+
 });
 
 
@@ -60,6 +65,7 @@ http.listen(process.env.PORT || 5000, function(){
         this.debug = debug;
 
         this.snakes = [];
+        this.foods = [];
 
         this.options = {
             fps: 15
@@ -68,6 +74,7 @@ http.listen(process.env.PORT || 5000, function(){
     };
     
     Game.prototype.start = function (event) {
+        this.addFood();
         this.gameLoop();
     };
 
@@ -82,13 +89,19 @@ http.listen(process.env.PORT || 5000, function(){
     Game.prototype.getStateObj = function () { //change that to class
         var state = {};
         state.snakes = this.snakes;
+        state.foods = this.foods;
         return state;
     };
 
     Game.prototype.addSnake = function (snake) {
-        this.debug.log(snake.name + ' joined the game');
+        // this.debug.log(snake.name + 'id:'+ snake.id + ' joined the game');
+        this.snakes.push(new Snake(snake.id, snake.name));
+    };
 
-        this.snakes.push(new Snake(snake.name));
+    Game.prototype.removeSnake = function (snakeId) {
+        var snakeToBeRemoved = _.find(this.snakes, {id: snakeId});
+        _.pull(this.snakes, snakeToBeRemoved);
+        // this.debug.log(snakeToBeRemoved.name + 'id:'+ snakeToBeRemoved.id + 'index:'+snakeIndex+ ' left the game');
     };
 
     Game.prototype.broadcastSocket = function (event, payload) {
@@ -99,33 +112,62 @@ http.listen(process.env.PORT || 5000, function(){
         var _self = this;
 
         var collisions = this.checkCollisions();
-        _.each(collisions, function (snake) {
-            snake.reset();
+        _.each(collisions, function (collision) {
+            var snake = collision.a;
+            if(collision.b.constructor.name === 'Segment') {
+                snake.reset();
+            } else if(collision.b.constructor.name === 'Food') {
+                _self.removeFood(collision.b);
+                _self.addFood();
+                snake.eat();
+            }
         });
 
-        if(collisions.length) {
+        if(_.includes(this.getCollisionsTypes(collisions), 'Segment')) {
             _self.broadcastSocket('playCrash');
         }
         _.each(this.snakes, function (snake) {
             snake.update();
         });
+
+    };
+
+    Game.prototype.getCollisionsTypes = function(collisions) {
+        return _.chain(collisions)
+            .map(function (collision) {
+                return collision.b;
+            })
+            .map(function (target) {
+                return target.constructor.name;
+            })
+            .uniq()
+            .value();
+    };
+
+    Game.prototype.removeFood = function (food) {
+        _.remove(this.foods, food);
+    };
+
+    Game.prototype.addFood = function () {
+        this.foods.push(new Food());
     };
 
     Game.prototype.checkCollisions = function () {
-        var collidedSnakes = [];
+        var collisions = [];
         var flatSegmentsMap = _(this.snakes)
             .map('segments')
             .flatten()
-            .value();
+            .value()
+            .concat(this.foods);
 
         _.each(this.snakes, function (snake) {
-            _.each(flatSegmentsMap, function (segment) {
-                if(snake.checkCollision(segment)) {
-                    collidedSnakes.push(snake);
+            _.each(flatSegmentsMap, function (object) {
+                if(snake.checkCollision(object)) {
+                    collisions.push({a: snake, b: object});
                 };
             });
         });
-        return collidedSnakes;
+        return collisions;
     };
 
     Game.prototype.gameLoop = function () {
@@ -143,10 +185,10 @@ http.listen(process.env.PORT || 5000, function(){
     
 //    snake
 
-    function Snake(name) {
-
+    function Snake(id, name) {
         this.head;
         this.name = name;
+        this.id = id;
 
         this.color = colorArr.length > 0 ? colorArr.pop() : Math.random().toString(16).slice(-6); //todo extract to external fn
         this.direction = 'right';
@@ -160,6 +202,10 @@ http.listen(process.env.PORT || 5000, function(){
         this.length = 25;
         this.x = _.sample([10, 20, 30, 40]);
         this.y = _.sample([10, 20, 30, 40]);
+    };
+
+    Snake.prototype.eat = function () {
+        this.length++;
     };
 
     Snake.prototype.update = function () {
@@ -208,6 +254,13 @@ http.listen(process.env.PORT || 5000, function(){
     function Segment(x, y) {
         this.x = x;
         this.y = y;
+    }
+
+// food
+
+    function Food() {
+        this.x = _.sample(_.range(67));
+        this.y = _.sample(_.range(67));
     }
 
 //    grid 
