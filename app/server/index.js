@@ -96,6 +96,7 @@ http.listen(process.env.PORT || 5000, function(){
     Game.prototype.addSnake = function (snake) {
         // this.debug.log(snake.name + 'id:'+ snake.id + ' joined the game');
         this.snakes.push(new Snake(snake.id, snake.name));
+        this.broadcastSocket('playNewplayer');
     };
 
     Game.prototype.removeSnake = function (snakeId) {
@@ -125,6 +126,10 @@ http.listen(process.env.PORT || 5000, function(){
 
         if(_.includes(this.getCollisionsTypes(collisions), 'Segment')) {
             _self.broadcastSocket('playCrash');
+        }
+
+        if(_.includes(this.getCollisionsTypes(collisions), 'Food')) {
+            _self.broadcastSocket('playPowerup');
         }
         _.each(this.snakes, function (snake) {
             snake.update();
@@ -190,7 +195,8 @@ http.listen(process.env.PORT || 5000, function(){
         this.name = name;
         this.id = id;
 
-        this.color = colorArr.length > 0 ? colorArr.pop() : Math.random().toString(16).slice(-6); //todo extract to external fn
+        this.color = colorArr.length > 0 ? colorArr.pop() : '#ffcc00';
+        //Math.random().toString(16).slice(-6); //todo extract to external fn
         this.direction = 'right';
 
         this.reset();
