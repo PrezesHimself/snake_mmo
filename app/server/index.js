@@ -107,10 +107,32 @@ http.listen(process.env.PORT || 5000, function(){
     };
 
     Game.prototype.update = function () {
+        var _self = this;
+
+        _.each(this.checkCollisions(), function (snake) {
+            snake.reset();
+        });
         _.each(this.snakes, function (snake) {
             snake.update();
-        })
-    }
+        });
+    };
+
+    Game.prototype.checkCollisions = function () {
+        var collidedSnakes = [];
+        var flatSegmentsMap = _(this.snakes)
+            .map('segments')
+            .flatten()
+            .value();
+
+        _.each(this.snakes, function (snake) {
+            _.each(flatSegmentsMap, function (segment) {
+                if(snake.checkCollision(segment)) {
+                    collidedSnakes.push(snake);
+                };
+            });
+        });
+        return collidedSnakes;
+    };
 
     Game.prototype.gameLoop = function () {
         const _self = this;
@@ -128,17 +150,23 @@ http.listen(process.env.PORT || 5000, function(){
 //    snake
 
     function Snake(id, name) {
-        this.x = _.sample([10, 20, 30, 40]);
-        this.y = _.sample([10, 20, 30, 40]);
+        this.head;
         this.name = name;
         this.id = id;
 
-        this.color = colorArr.length > 0 ? colorArr.pop() : Math.random().toString(16).slice(-6);
+        this.color = colorArr.length > 0 ? colorArr.pop() : Math.random().toString(16).slice(-6); //todo extract to external fn
         this.direction = 'right';
-        this.segments = [];
 
-        this.length = 15;
+        this.reset();
     }
+
+    Snake.prototype.reset = function () {
+
+        this.segments = [];
+        this.length = 25;
+        this.x = _.sample([10, 20, 30, 40]);
+        this.y = _.sample([10, 20, 30, 40]);
+    };
 
     Snake.prototype.update = function () {
         this.segments.push(new Segment(
@@ -148,6 +176,9 @@ http.listen(process.env.PORT || 5000, function(){
         if(this.segments.length === this.length) {
             this.segments.shift();
         }
+
+
+        this.head = _.last(this.segments);
 
         switch (this.direction) {
             case 'up':
@@ -172,6 +203,11 @@ http.listen(process.env.PORT || 5000, function(){
 
 
     }
+
+    Snake.prototype.checkCollision = function(segment){
+        if(this.head == segment) return false;
+        return this.x === segment.x && this.y === segment.y;
+    };
 
 // segment
 
