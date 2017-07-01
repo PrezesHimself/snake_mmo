@@ -210,13 +210,22 @@ Game.prototype.draw = function () {
     _.each(this.state.snakes, function (snake) {
         var grid = _self.grid;
         _.each(snake.segments, function (segment) {
-            console.log(segment);
             _self.context.fillStyle = snake.color;
             _self.context.fillRect(
                 segment.x * grid,
                 segment.y * grid,
                 grid, grid);
         })
+    });
+
+    _.each(this.state.foods, function (food) {
+        var grid = _self.grid;
+
+        _self.context.fillStyle = '#FFF';
+        _self.context.fillRect(
+            food.x * grid,
+            food.y * grid,
+            grid, grid);
     });
 };
 
