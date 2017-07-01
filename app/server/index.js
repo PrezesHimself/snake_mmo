@@ -117,9 +117,20 @@ http.listen(process.env.PORT || 5000, function(){
         this.y = _.sample([10, 20, 30, 40]);
         this.name = name;
         this.direction = 'right';
+        this.segments = [];
+
+        this.length = 5;
     }
 
     Snake.prototype.update = function () {
+        this.segments.push(new Segment(
+            this.x, this.y
+        ));
+
+        if(this.segments.length === this.length) {
+            this.segments.shift();
+        }
+
         switch (this.direction) {
             case 'up':
                 this.y -= 1;
@@ -140,6 +151,15 @@ http.listen(process.env.PORT || 5000, function(){
         if(this.x < 0) this.x = global.GRID.width;
         if(this.x > global.GRID.width) this.x = 0;
 
+
+
+    }
+
+// segment
+
+    function Segment(x, y) {
+        this.x = x;
+        this.y = y;
     }
 
 //    grid 

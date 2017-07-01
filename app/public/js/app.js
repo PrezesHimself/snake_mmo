@@ -209,11 +209,14 @@ Game.prototype.draw = function () {
 
     _.each(this.state.snakes, function (snake) {
         var grid = _self.grid;
-        _self.context.fillStyle = '#0ae';
-        _self.context.fillRect(
-            snake.x * grid,
-            snake.y * grid,
-            grid, grid);
+        _.each(snake.segments, function (segment) {
+            console.log(segment);
+            _self.context.fillStyle = '#0ae';
+            _self.context.fillRect(
+                segment.x * grid,
+                segment.y * grid,
+                grid, grid);
+        })
     });
 };
 
