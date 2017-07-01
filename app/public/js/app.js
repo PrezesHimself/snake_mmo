@@ -62,6 +62,17 @@ function Game(canvas, socket, name) {
     socket.on('game_updateScore', this.updateScoreBoard.bind(this));
     socket.on('playCrash', function () {
         window.SOUNDS.playCrash();
+
+    });
+    socket.on('playPowerup', function () {
+
+        window.SOUNDS.playSound('powerup');
+
+    });
+    socket.on('playNewplayer', function () {
+
+        window.SOUNDS.playSound('new_player');
+
     });
 }
 
