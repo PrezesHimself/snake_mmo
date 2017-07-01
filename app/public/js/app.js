@@ -58,7 +58,10 @@ function Game(canvas, socket, name, options) {
 
     this.state = {};
 
-    socket.on('game_gameLoop', this.gameLoop.bind(this))
+    socket.on('game_gameLoop', this.gameLoop.bind(this));
+    socket.on('sound_play', function () {
+        alert('kolizja');
+    });
 }
 
 
@@ -230,8 +233,8 @@ $('.snake-name-button').click(function () {
     DEBUG.listen(socket);
 
     socket.emit('joinGame', {name: name});
-    
-    
+
+
     // create the canvas element
     var canvas = document.createElement("canvas");
     document.body.appendChild(canvas);

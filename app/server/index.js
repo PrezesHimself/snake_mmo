@@ -98,8 +98,10 @@ http.listen(process.env.PORT || 5000, function(){
     Game.prototype.update = function () {
         var _self = this;
 
-        _.each(this.checkCollisions(), function (snake) {
+        var collisions = this.checkCollisions();
+        _.each(collisions, function (snake) {
             snake.reset();
+            _self.broadcastSocket('sound_play', 'crash1')
         });
         _.each(this.snakes, function (snake) {
             snake.update();
