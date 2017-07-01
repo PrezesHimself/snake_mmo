@@ -15,6 +15,7 @@ io.on('connection', function(socket){
 
     socket.on('joinGame', function(snake){
         game.addSnake(snake);
+        socket.emit('game_updateScore', game.getScoreBoard());
     });
 
     socket.on('directionChanged', function(direction){
@@ -108,6 +109,17 @@ http.listen(process.env.PORT || 5000, function(){
         this.io.sockets.emit(event, payload || '');
     };
 
+    Game.prototype.getScoreBoard = function () {
+        var scoreBoard = _.map(this.snakes, function (snake) {
+            return {
+                name: snake.name,
+                score: snake.length
+            };
+        });
+        scoreBoard = _.orderBy(scoreBoard, ['score'], ['desc']);
+        return scoreBoard;
+    };
+
     Game.prototype.update = function () {
         var _self = this;
 
@@ -119,6 +131,7 @@ http.listen(process.env.PORT || 5000, function(){
             } else if(collision.b.constructor.name === 'Food') {
                 _self.removeFood(collision.b);
                 _self.addFood();
+
                 snake.eat();
             }
         });
@@ -126,6 +139,12 @@ http.listen(process.env.PORT || 5000, function(){
         if(_.includes(this.getCollisionsTypes(collisions), 'Segment')) {
             _self.broadcastSocket('playCrash');
         }
+
+        if(_.includes(this.getCollisionsTypes(collisions), 'Food')) {
+            _self.broadcastSocket('game_updateScore', _self.getScoreBoard());
+            _self.broadcastSocket('playCrash');
+        }
+
         _.each(this.snakes, function (snake) {
             snake.update();
         });

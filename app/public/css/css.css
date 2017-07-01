@@ -4,6 +4,7 @@ html, body {
     overflow: hidden;
 }
 
+.container {}
 .splash .jumbotron{
     margin-top: 50px;
 }
@@ -13,6 +14,22 @@ html, body {
     background: #DDD;
 }
 
-canvas {
+.game-container {
 
+    background: #555;
+}
+.game-container .score-board{
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 400px;
+    padding: 20px;
+    background: gray;
+}
+
+.game-container .score-board div {
+    font-weight: bold;
+    font-size: 24px;
+    color: white;
 }

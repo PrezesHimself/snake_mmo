@@ -46,7 +46,7 @@
  *
  * @constructor
  */
-function Game(canvas, socket, name, options) {
+function Game(canvas, socket, name) {
     this.canvas = canvas;
     this.socket = socket;
     this.name = name;
@@ -59,12 +59,25 @@ function Game(canvas, socket, name, options) {
     this.state = {};
 
     socket.on('game_gameLoop', this.gameLoop.bind(this));
+    socket.on('game_updateScore', this.updateScoreBoard.bind(this));
     socket.on('playCrash', function () {
-
         window.SOUNDS.playCrash();
     });
 }
 
+
+/**
+ * Start the game loop
+ * and initialize the keybindings
+ */
+Game.prototype.updateScoreBoard = function (scoreBoard) {
+    var board = $('.score-board');
+    board.empty();
+    _.each(scoreBoard, function (score) {
+       var element = $('<div>').text(score.name + ': ' + score.score);
+        board.append(element);
+    });
+};
 
 /**
  * Start the game loop
@@ -264,9 +277,19 @@ function initGame() {
         socket.emit('joinGame', {id: snakeId, name: name});
     });
 
-    // create the canvas element
+    var gameContainer = document.createElement("div");
+    gameContainer.classList.add('game-container')
+
+    var scoreBoard = document.createElement("div");
+    scoreBoard.classList.add('score-board')
+
     var canvas = document.createElement("canvas");
-    document.body.appendChild(canvas);
+
+    gameContainer.appendChild(canvas);
+    gameContainer.appendChild(scoreBoard);
+
+
+    document.body.appendChild(gameContainer);
     //
     // /**
     //  * Game initialization
