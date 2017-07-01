@@ -211,7 +211,6 @@ Game.prototype.draw = function () {
     _.each(this.state.snakes, function (snake) {
         var grid = _self.grid;
         _.each(snake.segments, function (segment) {
-            console.log(segment);
             _self.context.fillStyle = snake.color;
             _self.context.fillRect(
                 segment.x * grid,
@@ -227,12 +226,12 @@ $('.snake-name-button').click(function () {
     var name = $('.snake-name').val();
 
     var socket = io();
-    snakeId = socket.id;
-
-    DEBUG.listen(socket);
-
-    socket.emit('joinGame', {id: snakeId, name: name});
     
+    socket.on('connect', function () {
+        var snakeId = socket.id;
+        DEBUG.listen(socket);
+        socket.emit('joinGame', {id: snakeId, name: name});
+    });
     
     // create the canvas element
     var canvas = document.createElement("canvas");

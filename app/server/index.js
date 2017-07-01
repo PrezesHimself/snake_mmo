@@ -20,8 +20,8 @@ io.on('connection', function(socket){
     socket.on('directionChanged', function(direction){
         debug.log(`${direction.snake.id} has moved ${direction.direction}`);
 
-        var snake = _.find(game.snakes, {name: direction.snake.id});
-
+        var snake = _.find(game.snakes, {id: direction.snake.id});
+        console.log(snake, direction.snake.id);
         if(snake) snake.direction = direction.direction;
     });
 
@@ -92,14 +92,15 @@ http.listen(process.env.PORT || 5000, function(){
     };
 
     Game.prototype.addSnake = function (snake) {
-        this.debug.log(snake.name + 'id:'+ snake.id + ' joined the game');
+        // this.debug.log(snake.name + 'id:'+ snake.id + ' joined the game');
+        console.log(snake, 'test');
         this.snakes.push(new Snake(snake.id, snake.name));
     };
 
     Game.prototype.removeSnake = function (snakeId) {
-        var snakeIndex = this.snakes.findIndex(a => a.id === snakeId);
-        var removedSnake = this.snakes.splice(snakeIndex,1);
-        this.debug.log(removedSnake.name + 'id:'+ removedSnake.id + 'index:'+snakeIndex+ ' left the game');
+        var snakeToBeRemoved = _.find(this.snakes, {id: snakeId});
+        _.pull(this.snakes, snakeToBeRemoved);
+        // this.debug.log(snakeToBeRemoved.name + 'id:'+ snakeToBeRemoved.id + 'index:'+snakeIndex+ ' left the game');
     };
 
     Game.prototype.broadcastSocket = function (event, payload) {
