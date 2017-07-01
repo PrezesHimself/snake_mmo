@@ -211,7 +211,7 @@ Game.prototype.draw = function () {
         var grid = _self.grid;
         _.each(snake.segments, function (segment) {
             console.log(segment);
-            _self.context.fillStyle = '#0ae';
+            _self.context.fillStyle = snake.color;
             _self.context.fillRect(
                 segment.x * grid,
                 segment.y * grid,
