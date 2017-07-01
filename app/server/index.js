@@ -119,7 +119,7 @@ http.listen(process.env.PORT || 5000, function(){
         this.direction = 'right';
         this.segments = [];
 
-        this.length = 5;
+        this.length = 15;
     }
 
     Snake.prototype.update = function () {

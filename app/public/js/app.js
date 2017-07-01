@@ -185,7 +185,7 @@ Game.prototype.keyBindings = function () {
 
 
 /**
- * The gameloop - and entity (update/draw) calls
+ * The gameloop - and entity (te/draw) calls
  * Use of `setTimeout` instead of animationFrame
  * in order to keep it simple as possible
  */
@@ -202,7 +202,7 @@ Game.prototype.draw = function () {
 
 
     this.context.fillStyle = '#000';
-    this.context.globalAlpha   = .2;
+    this.context.globalAlpha   = 1;
     this.context.fillRect(
         0, 0, this.canvas.width, this.canvas.height);
     this.context.globalAlpha   = 1;
