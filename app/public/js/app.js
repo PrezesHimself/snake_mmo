@@ -109,6 +109,7 @@ Game.prototype.addEntity = function (entity) {
 Game.prototype.emitSocket = function (event, msg) {
     msg.snake = {};
     msg.snake.name = this.name;
+    msg.snake.id = this.socket.id;
     this.socket.emit(event, msg);
 };
 
@@ -226,10 +227,11 @@ $('.snake-name-button').click(function () {
     var name = $('.snake-name').val();
 
     var socket = io();
+    snakeId = socket.id;
 
     DEBUG.listen(socket);
 
-    socket.emit('joinGame', {name: name});
+    socket.emit('joinGame', {id: snakeId, name: name});
     
     
     // create the canvas element
