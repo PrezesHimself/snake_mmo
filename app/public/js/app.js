@@ -60,7 +60,7 @@ function Game(canvas, socket, name, options) {
 
     socket.on('game_gameLoop', this.gameLoop.bind(this));
     socket.on('sound_play', function () {
-        alert('kolizja');
+        alert('test');
     });
 }
 
@@ -213,7 +213,6 @@ Game.prototype.draw = function () {
     _.each(this.state.snakes, function (snake) {
         var grid = _self.grid;
         _.each(snake.segments, function (segment) {
-            console.log(segment);
             _self.context.fillStyle = snake.color;
             _self.context.fillRect(
                 segment.x * grid,

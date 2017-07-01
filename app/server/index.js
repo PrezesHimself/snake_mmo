@@ -101,8 +101,11 @@ http.listen(process.env.PORT || 5000, function(){
         var collisions = this.checkCollisions();
         _.each(collisions, function (snake) {
             snake.reset();
-            _self.broadcastSocket('sound_play', 'crash1')
         });
+
+        if(collisions.length) {
+            _self.broadcastSocket('sound_play', 'crash1');
+        }
         _.each(this.snakes, function (snake) {
             snake.update();
         });
