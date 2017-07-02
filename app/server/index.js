@@ -3,6 +3,7 @@ const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const _ = require('lodash');
+const size = 67;
 var game;
 var debug;
 
@@ -83,10 +84,13 @@ http.listen(process.env.PORT || 5000, function(){
     };
     
     Game.prototype.start = function (event) {
+        var _self = this;
         this.addFood();
         this.gameLoop();
 
-        this.timer.repeat(5, this.span.bind(this, new Explosion()))
+        // this.timer.repeat(30, function () {
+        //     _self.span(new Explosion());
+        // });
     };
 
     Game.prototype.getState = function () {
@@ -163,7 +167,7 @@ http.listen(process.env.PORT || 5000, function(){
                 snake.reset();
             } else if(collision.b.constructor.name === 'Food') {
                 _self.removeFood(collision.b);
-                _self.addFood();
+                if(!_self.foods.length) _self.addFood();
 
                 snake.eat();
             } else if(collision.b.constructor.name === 'Explosion') {
@@ -210,8 +214,8 @@ http.listen(process.env.PORT || 5000, function(){
         _.remove(this.powerups, powerup);
     };
 
-    Game.prototype.addFood = function () {
-        this.foods.push(new Food());
+    Game.prototype.addFood = function (x, y) {
+        this.foods.push(new Food(x, y));
     };
 
     Game.prototype.checkCollisions = function () {
@@ -262,13 +266,13 @@ http.listen(process.env.PORT || 5000, function(){
     Snake.prototype.reset = function () {
 
         this.segments = [];
-        this.length = 25;
+        this.length = 5;
         this.x = _.sample([10, 20, 30, 40]);
         this.y = _.sample([10, 20, 30, 40]);
     };
 
     Snake.prototype.eat = function () {
-        this.length++;
+        this.length = this.length + 3;
     };
 
     Snake.prototype.update = function () {
@@ -321,33 +325,36 @@ http.listen(process.env.PORT || 5000, function(){
 
 // food
 
-    function Food() {
-        this.x = _.sample(_.range(67));
-        this.y = _.sample(_.range(67));
+    function Food(x, y) {
+        this.x = x || _.sample(_.range(size));
+        this.y = y || _.sample(_.range(size));
     }
 
 // Explosion
 
     function Explosion() {
-        this.x = _.sample(_.range(67));
-        this.y = _.sample(_.range(67));
+        this.x = _.sample(_.range(size));
+        this.y = _.sample(_.range(size));
     }
 
     Explosion.prototype.action = function (game) {
-        game.addFood();
-        game.addFood();
-        game.addFood();
-        game.addFood();
-        game.addFood();
-        game.addFood();
+        var offset = 3;
+        game.addFood(this.x - offset, this.y - offset);
+        game.addFood(this.x, this.y - offset);
+        game.addFood(this.x + offset, this.y - offset);
+        game.addFood(this.x + offset, this.y);
+        game.addFood(this.x + offset, this.y + offset);
+        game.addFood(this.x, this.y + offset);
+        game.addFood(this.x - offset, this.y + offset);
+        game.addFood(this.x - offset, this.y);
     };
 
 //    grid 
     global.GRID = new Grid();
 
     function Grid() {
-        this.width = 67;
-        this.height = 67;
+        this.width = size;
+        this.height = size;
     }
 
 //    Timer

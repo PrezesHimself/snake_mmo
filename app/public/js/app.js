@@ -58,6 +58,9 @@ function Game(canvas, socket, name) {
 
     this.state = {};
 
+    // this.soundtrack = window.SOUNDS.playSound('rick');
+
+
     socket.on('game_gameLoop', this.gameLoop.bind(this));
     socket.on('game_updateScore', this.updateScoreBoard.bind(this));
 
@@ -173,7 +176,8 @@ Game.prototype.keyBindings = function () {
         w: 87,
         up: 38,
         s: 83,
-        down: 40
+        down: 40,
+        m: 77
     };
 
 
@@ -181,6 +185,7 @@ Game.prototype.keyBindings = function () {
      * Attach keyboard arrows to snake direction
      */
     document.onkeydown = function (e) {
+        console.log(e);
         switch ((e.which || e.keyCode) | 0) {
             case keys.a:
             case keys.left:
@@ -212,6 +217,9 @@ Game.prototype.keyBindings = function () {
                     that.key = 'down';
                     that.emitSocket('directionChanged', { direction: 'down'});
                 }
+                break;
+            case keys.m:
+                that.soundtrack.volume = that.soundtrack.volume ? 0 : 1;
         }
     };
 
@@ -244,7 +252,7 @@ Game.prototype.draw = function () {
     _.each(this.state.snakes, function (snake) {
         var grid = _self.grid;
         _.each(snake.segments, function (segment, i) {
-            _self.context.globalAlpha = i/snake.segments.length + 0.5;
+            // _self.context.globalAlpha = i/snake.segments.length + 0.5;
             _self.context.fillStyle = snake.color;
             _self.context.fillRect(
                 segment.x * grid,

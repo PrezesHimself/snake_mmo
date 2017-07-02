@@ -14,12 +14,15 @@
 			new_record: new Audio('/assets/sounds/new_record.wav'),
 			powerup: new Audio('/assets/sounds/powerup.wav'),
 			powerup2: new Audio('/assets/sounds/powerup2.wav'),
+			rick: new Audio('/assets/music/rick.mp3'),
 		};
 	}
 	
    Sounds.prototype.playSound = function(soundName) {
-   		this.sounds[soundName].play();
-   }
+	   	var sound = this.sounds[soundName];
+	   	sound.play();
+	    return sound;
+   };
 
    Sounds.prototype.playCrash = function() {
    		var crashName = 'crash'+(_.sample(_.range(3))+1);
