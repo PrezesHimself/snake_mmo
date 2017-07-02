@@ -1,11 +1,4 @@
 
-
-
-
-
-
-// debug
-
 (function () {
     'strict mode'
     window.DEBUG = new Debug(
@@ -40,13 +33,7 @@
 })();
 
 
-
-/**
- * A lightweight game wrapper
- *
- * @constructor
- */
-function Game(canvas, socket, name) {
+function Game(canvas, socket, name, ricky) {
     this.canvas = canvas;
     this.socket = socket;
     this.name = name;
@@ -58,7 +45,7 @@ function Game(canvas, socket, name) {
 
     this.state = {};
 
-    // this.soundtrack = window.SOUNDS.playSound('rick');
+    this.soundtrack = window.SOUNDS.playSound('rick');
 
 
     socket.on('game_gameLoop', this.gameLoop.bind(this));
@@ -75,13 +62,14 @@ function Game(canvas, socket, name) {
     socket.on('playNewplayer', function () {
         window.SOUNDS.playSound('new_player');
     });
+
+    $(ricky).click((function () {
+        this.soundtrack.volume = this.soundtrack.volume ? 0 : 1;
+        $(ricky).toggleClass('h');
+    }).bind(this));
 }
 
 
-/**
- * Start the game loop
- * and initialize the keybindings
- */
 Game.prototype.updateScoreBoard = function (scoreBoard) {
     var board = $('.score-board');
     board.empty();
@@ -98,27 +86,16 @@ Game.prototype.updateScoreBoard = function (scoreBoard) {
     });
 };
 
-/**
- * Start the game loop
- * and initialize the keybindings
- */
 Game.prototype.start = function () {
     this.keyBindings();
 };
 
 
-/**
- * Stop the game loop
- */
 Game.prototype.stop = function() {
     this.pause = true;
 };
 
 
-/**
- * Scale the canvas element
- * in accordance with the correct ratio
- */
 Game.prototype.scale = function () {
     this.ratio = innerWidth < innerHeight ? innerWidth : innerHeight;
     this.tile = (this.ratio / 10) | 0;
@@ -128,20 +105,10 @@ Game.prototype.scale = function () {
 };
 
 
-/**
- * Adds an entity to the game
- *
- * @param {Function} entity
- */
 Game.prototype.addEntity = function (entity) {
     this.entities.push(entity);
 };
 
-/**
- * Emits to socket server
- *
- * @param {Function} entity
- */
 Game.prototype.emitSocket = function (event, msg) {
     msg.snake = {};
     msg.snake.name = this.name;
@@ -150,20 +117,11 @@ Game.prototype.emitSocket = function (event, msg) {
 };
 
 
-/**
- * Determines if an entity collides with another
- *
- * @param {Object} a
- * @param {Object} b
- */
 Game.prototype.collide = function(a, b){
     return a.x === b.x && a.y === b.y;
 };
 
 
-/**
- * Tracks the pressed keys
- */
 Game.prototype.keyBindings = function () {
     var that = this;
 
@@ -181,9 +139,6 @@ Game.prototype.keyBindings = function () {
     };
 
 
-    /**
-     * Attach keyboard arrows to snake direction
-     */
     document.onkeydown = function (e) {
         console.log(e);
         switch ((e.which || e.keyCode) | 0) {
@@ -226,11 +181,6 @@ Game.prototype.keyBindings = function () {
 };
 
 
-/**
- * The gameloop - and entity (te/draw) calls
- * Use of `setTimeout` instead of animationFrame
- * in order to keep it simple as possible
- */
 Game.prototype.gameLoop = function (state) {
     this.state = state;
     this.draw();
@@ -296,7 +246,7 @@ $('.snake-name-button').click(function () {
 $(document).keypress(function (e) {
     if (e.which == 13) {
         initGame();
-        return false;    //<---- Add this line
+        return false;
     }
 });
 
@@ -318,24 +268,19 @@ function initGame() {
     var scoreBoard = document.createElement("div");
     scoreBoard.classList.add('score-board')
 
+    var ricky = document.createElement("div");
+    ricky.classList.add('ricky')
+
     var canvas = document.createElement("canvas");
 
     gameContainer.appendChild(canvas);
     gameContainer.appendChild(scoreBoard);
+    gameContainer.appendChild(ricky);
 
 
     document.body.appendChild(gameContainer);
-    //
-    // /**
-    //  * Game initialization
-    //  * and entity preparation
-    //  */
-    var game = new Game(canvas, socket, name);
+
+    var game = new Game(canvas, socket, name, ricky);
     game.scale();
-    // var food = new Food(game);
-    // var snake = new Snake(game, food);
-    //
-    // game.addEntity(food);
-    // game.addEntity(snake);
     game.start();
 }

@@ -160,6 +160,7 @@ http.listen(process.env.PORT || 5000, function(){
     Game.prototype.update = function () {
         var _self = this;
 
+        // var collisions = [];
         var collisions = this.checkCollisions();
         _.each(collisions, function (collision) {
             var snake = collision.a;

@@ -33,3 +33,19 @@ html, body {
     font-size: 24px;
     color: white;
 }
+
+.ricky {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    display: block;
+    width: 200px;
+    height: 200px;
+    background-image: url('../assets/img/bezsorry.png');
+    cursor: pointer;
+    transition: all .3s linear;
+}
+
+.ricky.h {
+    bottom: -120px;
+}
